@@ -34,16 +34,50 @@ Ejercicios básicos
   }
   ```
 
-   * Inserte una gŕafica donde, en un *subplot*, se vea con claridad la señal temporal de un segmento de
-     unos 30 ms de un fonema sonoro y su periodo de pitch; y, en otro *subplot*, se vea con claridad la
+   * Inserte una gŕafica donde, en un *subplot*, se vea con claridad la señal temporal de un segmento de unos 30 ms de un fonema sonoro y su periodo de pitch; y, en otro *subplot*, se vea con claridad la
 	 autocorrelación de la señal y la posición del primer máximo secundario.
 
 	 NOTA: es más que probable que tenga que usar Python, Octave/MATLAB u otro programa semejante para
 	 hacerlo. Se valorará la utilización de la biblioteca matplotlib de Python.
 
+  ![Señal sonora y autocorrelacion](./img/autocorr.png)
+  
+
    * Determine el mejor candidato para el periodo de pitch localizando el primer máximo secundario de la autocorrelación. Inserte a continuación el código correspondiente.
 
+  Para encontrar el mejor candidato para el periodo de pitch localizando el primer máximo secundario de la autocorrelación hemos buscado el primer máximo después del origen (excluyendo el pico en el origen); para hacerlo hacemos lo siguiente:
+   
+   1. Inicializamos: iniciamos `rmax`con el valor de `npictch_min`y establezemos el periodo en eso.
+   2. Bucle en los valores de la autocorrelación: hacemos un bucle que va des de `npitch_min` hasta `npitch_max` y buscamos un valor mayor a `rMax`; si lo encontramos, actualizamos `rMax` y Lag
+   3. Calculamos la potencia: La potencia de la señal se calcula utilizando el valor de la autocorrelación en el lag 0. Para evitar tomar el logaritmo de cero, r[0] se establece en un valor pequeño (1e-10) si es cero.
+
+   Y así básicamente obtenemos el valor del segundo máximo excluyendo el primer pico. El codigo se que implementa el proceso descrito es el siguiente:
+   ```cpp
+   float rMax = r[npitch_min];
+    unsigned int lag = npitch_min;
+
+    for (unsigned int l = npitch_min; l < npitch_max; l++) {
+      if(r[l]>rMax){
+        lag = l;
+        rMax = r[l];
+      }
+    }
+    //unsigned int lag = iRMax - r.begin();
+
+    float pot = 10 * log10(r[0]);
+    ```
+
    * Implemente la regla de decisión sonoro o sordo e inserte el código correspondiente.
+
+  ```cpp
+  bool PitchAnalyzer::unvoiced(float pot, float r1norm, float rmaxnorm) const {
+    // De moment hem trobat que el millor rendiment és amb llindar_rmax = 0.5, llindar_r1norm = 0.75 i llindar_pot = -50
+    if (rmaxnorm < this->llindar_rmax || r1norm < this->llindar_r1norm || pot < this->llindar_pot){ 
+      return true;
+    }  
+    return false;
+  }
+  ```
 
    * Puede serle útil seguir las instrucciones contenidas en el documento adjunto `código.pdf`.
 
