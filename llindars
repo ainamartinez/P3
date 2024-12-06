@@ -1,0 +1,10 @@
+#! /bin/bash
+
+for rmax in 0.45 0.5 0.55; do
+    for r1norm in 0.75 0.85 0.8; do
+        for pot in -50 -45 -55; do
+            echo -en "$rmax\t$r1norm\t$pot\t"
+            scripts/run_get_pitch.sh $rmax $r1norm $pot | grep TOTAL
+        done
+    done
+done | sort -t: -k2n

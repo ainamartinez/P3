@@ -32,9 +32,19 @@ namespace upc {
     window.resize(frameLen);
 
     switch (win_type) {
-    case HAMMING:
+    case HAMMING: {
       /// \TODO Implement the Hamming window
+      /// \FET La finestra de Hamming la definim com a w[n] = 0.54 - 0.46cos(2\pi n/(N-1))
+      const double PI = 3.141592653589793;
+      double factor = 2 * PI / (frameLen - 1);
+
+        for (int n = 0; n < frameLen; ++n) {
+            double x = factor * n;
+            double cos_x = 1 - (x * x) / 2 + (x * x * x * x) / 24; // Hasta x^4
+            window[n] = 0.54 - 0.46 * cos_x;
+        }
       break;
+    }
     case RECT:
     default:
       window.assign(frameLen, 1);
@@ -57,9 +67,11 @@ namespace upc {
     /// \TODO Implement a rule to decide whether the sound is voiced or not.
     /// * You can use the standard features (pot, r1norm, rmaxnorm),
     ///   or compute and use other ones.
-    if (rmaxnorm < this->llindar_rmax){
+    /// \FET Implementem diverses maneres de decidir si el so és sonor o sord
+    /// * De moment hem trobat que el millor rendiment és amb llindar_rmax = 0.5, llindar_r1norm = 0.75 i llindar_pot = -50
+    if (rmaxnorm < this->llindar_rmax || r1norm < this->llindar_r1norm || pot < this->llindar_pot){ 
       return true;
-    }
+    }  
     return false;
   }
 
@@ -85,6 +97,7 @@ namespace upc {
 	///    - The lag corresponding to the maximum value of the pitch.
     ///	   .
 	/// In either case, the lag should not exceed that of the minimum value of the pitch.
+    /// \FET Trobem el lag del màxim valor de l'autocorrelació lluny de l'origen
     float rMax = r[npitch_min];
     unsigned int lag = npitch_min;
 

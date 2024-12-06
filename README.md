@@ -15,6 +15,25 @@ Ejercicios básicos
 
    * Complete el cálculo de la autocorrelación e inserte a continuación el código correspondiente.
 
+  ```cpp
+  void PitchAnalyzer::autocorrelation(const vector<float> &x, vector<float> &r) const {
+
+    for (unsigned int l = 0; l < r.size(); ++l) { // This for is per every l value 
+  		/// \TODO Compute the autocorrelation r[l]
+      /// \FET Autocorrelació computada amb la fòrmula r[l] = \frac{1}{N} \sum_{n=l}^{N}x[n-l]x[n]
+      r[l] = 0;
+      for (unsigned int n = l; n < x.size(); n++)
+      {
+        r[l] += x[n]*x[n-l];
+      }
+      r[l] = r[l]/x.size();
+    }
+
+    if (r[0] == 0.0F) //to avoid log() and divide zero 
+      r[0] = 1e-10; 
+  }
+  ```
+
    * Inserte una gŕafica donde, en un *subplot*, se vea con claridad la señal temporal de un segmento de
      unos 30 ms de un fonema sonoro y su periodo de pitch; y, en otro *subplot*, se vea con claridad la
 	 autocorrelación de la señal y la posición del primer máximo secundario.
@@ -22,8 +41,7 @@ Ejercicios básicos
 	 NOTA: es más que probable que tenga que usar Python, Octave/MATLAB u otro programa semejante para
 	 hacerlo. Se valorará la utilización de la biblioteca matplotlib de Python.
 
-   * Determine el mejor candidato para el periodo de pitch localizando el primer máximo secundario de la
-     autocorrelación. Inserte a continuación el código correspondiente.
+   * Determine el mejor candidato para el periodo de pitch localizando el primer máximo secundario de la autocorrelación. Inserte a continuación el código correspondiente.
 
    * Implemente la regla de decisión sonoro o sordo e inserte el código correspondiente.
 
@@ -68,6 +86,7 @@ Ejercicios de ampliación
 
   * Inserte un *pantallazo* en el que se vea el mensaje de ayuda del programa y un ejemplo de utilización
     con los argumentos añadidos.
+    ![ayuda del programa con los argumentos añadidos](./img/get_pitch_help.png)
 
 - Implemente las técnicas que considere oportunas para optimizar las prestaciones del sistema de estimación
   de pitch.
