@@ -4,9 +4,9 @@
 # distinto de cero, o cero si todos devuelven cero.
 set -o pipefail
 
-LLINDAR_RMAX=${1:-0.45}
+LLINDAR_RMAX=${1:-0.39
 LLINDAR_R1NORM=${2:-0.75}
-LLINDAR_POT=${3:--50}
+LLINDAR_POT=${3:--43}
 # Put here the program (maybe with path)
 # GETF0="get_pitch --llindar-rmax $LLINDAR_RMAX"
 # GETF1="get_pitch --llindar-r1norm $LLINDAR_R1NORM"

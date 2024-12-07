@@ -40,6 +40,7 @@ Ejercicios básicos
 	 NOTA: es más que probable que tenga que usar Python, Octave/MATLAB u otro programa semejante para
 	 hacerlo. Se valorará la utilización de la biblioteca matplotlib de Python.
 
+  Hemos usado python para generar estos gráficos, vean [aquí](./autocorrelacion.py)
   ![Señal sonora y autocorrelacion](./img/autocorr.png)
   
 
@@ -86,6 +87,12 @@ Ejercicios básicos
 
   * Utilice el programa `wavesurfer` para analizar las condiciones apropiadas para determinar si un
     segmento es sonoro o sordo. 
+
+    Hemso puesto con nuestro estimador ya completado (no es el mismo que el de clase) y lo usaremos para toda esta parte
+    ```bash
+    get_pitch prueba.wav prueba.f0
+    ```
+      
 	
 	  - Inserte una gráfica con la estimación de pitch incorporada a `wavesurfer` y, junto a ella, los 
 	    principales candidatos para determinar la sonoridad de la voz: el nivel de potencia de la señal
@@ -94,8 +101,12 @@ Ejercicios básicos
 
 		Puede considerar, también, la conveniencia de usar la tasa de cruces por cero.
 
-	    Recuerde configurar los paneles de datos para que el desplazamiento de ventana sea el adecuado, que
+	  Recuerde configurar los paneles de datos para que el desplazamiento de ventana sea el adecuado, que
 		en esta práctica es de 15 ms.
+
+Para obtener los valores de r1norm y rmax, hemos recurrido al [fichero de la autocorrelación](./autocorrelacion.py) anteriormente usado 
+    ![Estimación de pitch en Wavesurfer](./img/pitch_est.png)
+
 
       - Use el estimador de pitch implementado en el programa `wavesurfer` en una señal de prueba y compare
 	    su resultado con el obtenido por la mejor versión de su propio sistema.  Inserte una gráfica
@@ -103,10 +114,22 @@ Ejercicios básicos
      
 		Aunque puede usar el propio Wavesurfer para obtener la representación, se valorará
 	 	el uso de alternativas de mayor calidad (particularmente Python).
-  
+
+Hemos usado [un programa en python](./system_pitchest.py) para obtener la diferencia:
+  ![Comparación de estimadores de pitch](./img/ComparisonEstimation.png)
   * Optimice los parámetros de su sistema de estimación de pitch e inserte una tabla con las tasas de error
     y el *score* TOTAL proporcionados por `pitch_evaluate` en la evaluación de la base de datos 
 	`pitch_db/train`..
+  ### Summary
+
+  | Metric                          | Value                |
+  |---------------------------------|----------------------|
+  | Num. frames                     | 11200 = 7045 unvoiced + 4155 voiced |
+  | Unvoiced frames as voiced       | 249/7045 (3.53 %)    |
+  | Voiced frames as unvoiced       | 414/4155 (9.96 %)    |
+  | Gross voiced errors (+20.00 %)  | 51/3741 (1.36 %)     |
+  | MSE of fine errors              | 2.65 %               |
+  | **TOTAL**                       | **90.86 %**          |
 
 Ejercicios de ampliación
 ------------------------
@@ -119,7 +142,7 @@ Ejercicios de ampliación
   base de datos.
 
   * Inserte un *pantallazo* en el que se vea el mensaje de ayuda del programa y un ejemplo de utilización
-    con los argumentos añadidos.
+    con los argumentos añadidos. (vea en las primera línes de el programa [get_pitch.cpp](./src/get_pitch/get_pitch.cpp)
     ![ayuda del programa con los argumentos añadidos](./img/get_pitch_help.png)
 
 - Implemente las técnicas que considere oportunas para optimizar las prestaciones del sistema de estimación
@@ -128,11 +151,38 @@ Ejercicios de ampliación
   Entre las posibles mejoras, puede escoger una o más de las siguientes:
 
   * Técnicas de preprocesado: filtrado paso bajo, diezmado, *center clipping*, etc.
+
+  Hemos implementado el central clipping en el fichero [get_pitch](./src/get_pitch/get_pitch.cpp) con el siguiente código:
+  ```cpp
+  float max_val = *max_element(x.begin(), x.end());
+  float min_val = *min_element(x.begin(), x.end());
+  float threshold = 0.01 * max(max_val, -min_val);
+
+  for (auto &sample : x) {
+    if (abs(sample) < threshold) {
+      sample = 0;
+    }
+  }
+  ```
   * Técnicas de postprocesado: filtro de mediana, *dynamic time warping*, etc.
   * Métodos alternativos a la autocorrelación: procesado cepstral, *average magnitude difference function*
     (AMDF), etc.
-  * Optimización **demostrable** de los parámetros que gobiernan el estimador, en concreto, de los que
-    gobiernan la decisión sonoro/sordo.
+  * Optimización **demostrable** de los parámetros que gobiernan el estimador, en concreto, de los que gobiernan la decisión sonoro/sordo.
+
+  Hemos usado el fichero [optimización de umbrales sordo/sonoro](./llindars) que prueba el rendimiento en diferentes valores. Puede ver el fichero enlazado o el siguiente código
+
+  ```bash
+  #! /bin/bash
+
+  for rmax in $(seq 0.30 0.01 0.41); do
+    for r1norm in $(seq 0.74 0.01 0.77); do
+      for pot in $(seq -43 1 -39); do
+        echo -en "$rmax\t$r1norm\t$pot\t"
+        scripts/run_get_pitch.sh $rmax $r1norm $pot | grep TOTAL
+      done
+    done
+  done | sort -t: -k2n
+  ```
   * Cualquier otra técnica que se le pueda ocurrir o encuentre en la literatura.
 
   Encontrará más información acerca de estas técnicas en las [Transparencias del Curso](https://atenea.upc.edu/pluginfile.php/2908770/mod_resource/content/3/2b_PS%20Techniques.pdf)
