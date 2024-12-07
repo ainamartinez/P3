@@ -4,7 +4,7 @@
 # distinto de cero, o cero si todos devuelven cero.
 set -o pipefail
 
-LLINDAR_RMAX=${1:-0.39
+LLINDAR_RMAX=${1:-0.39}
 LLINDAR_R1NORM=${2:-0.75}
 LLINDAR_POT=${3:--43}
 # Put here the program (maybe with path)
@@ -20,7 +20,7 @@ for fwav in pitch_db/train/*.wav; do
     # echo "$GETF0 $fwav $ff0 ----"
     # echo "$GETF1 $fwav $ff0 ----"
     # echo "$GETF2 $fwav $ff0 ----"
-	# $GETF0 $fwav $ff0 > /dev/null || { echo -e "\nError in $GETF0 $fwav $ff0" && exit 1; }
+    # $GETF0 $fwav $ff0 > /dev/null || { echo -e "\nError in $GETF0 $fwav $ff0" && exit 1; }
     # $GETF1 $fwav $ff0 > /dev/null || { echo -e "\nError in $GETF1 $fwav $ff0" && exit 1; }
     # $GETF2 $fwav $ff0 > /dev/null || { echo -e "\nError in $GETF2 $fwav $ff0" && exit 1; }
 done
