@@ -15,6 +15,7 @@ Ejercicios básicos
 
    * Complete el cálculo de la autocorrelación e inserte a continuación el código correspondiente.
 
+Hemos usado la siguiente formula: $r[l] = \frac{1}{N} \sum_N x[n-l]x[n]$ teniendo en cuenta que $x[n]$ será una señal real
   ```cpp
   void PitchAnalyzer::autocorrelation(const vector<float> &x, vector<float> &r) const {
 
@@ -167,6 +168,25 @@ Ejercicios de ampliación
   * Técnicas de postprocesado: filtro de mediana, *dynamic time warping*, etc.
   * Métodos alternativos a la autocorrelación: procesado cepstral, *average magnitude difference function*
     (AMDF), etc.
+
+  Hemos implementado el filtro de mediana en el fichero [get_pitch](./src/get_pitch/get_pitch.cpp) con el siguiente código:
+  ```cpp
+  vector<float> f0_filtered(f0.size());
+  int filter_size = 3; // Size of the median filter window
+
+  for (size_t i = 0; i < f0.size(); ++i) {
+    vector<float> window;
+    for (int j = -filter_size / 2; j <= filter_size / 2; ++j) {
+      if (i + j >= 0 && i + j < f0.size()) {
+        window.push_back(f0[i + j]);
+      }
+    }
+    sort(window.begin(), window.end());
+    f0_filtered[i] = window[window.size() / 2];
+  }
+
+  f0 = f0_filtered;
+  ```
   * Optimización **demostrable** de los parámetros que gobiernan el estimador, en concreto, de los que gobiernan la decisión sonoro/sordo.
 
   Hemos usado el fichero [optimización de umbrales sordo/sonoro](./llindars) que prueba el rendimiento en diferentes valores. Puede ver el fichero enlazado o el siguiente código
